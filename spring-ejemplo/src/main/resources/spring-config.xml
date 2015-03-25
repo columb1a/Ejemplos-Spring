@@ -64,10 +64,10 @@ http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 		<property name="instrument" ref="piano" />
 	</bean>
 
-	<!-- Ejemplo de bean en donde se usa un INNER bean, es decir un bean donde sus properties 
-		usan directamente la declaración de un bean como valor. Con esto se logra 
-		que otros beanes no tengan acceso el bean que esta siendo asociado a la property 
-		en cuestion -->
+	<!-- Ejemplo de bean en donde se usa un INNER bean, es decir un bean donde 
+		sus properties usan directamente la declaración de un bean como valor. Con 
+		esto se logra que otros beanes no tengan acceso el bean que esta siendo asociado 
+		a la property en cuestion -->
 	<bean id="kenny_inner_version" class="instrumentalist.Instrumentalist">
 		<property name="song" value="Jingle Bells" />
 		<property name="instrument">
@@ -75,11 +75,11 @@ http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 		</property>
 	</bean>
 
-    <!-- Ejemplo de bean donde carl es un imitador de las canciones que kenny toca.
-     	 Lo interesante de este bean, es que se usa SpEL (Spring Expression Languague)
-     	 el cual esta compuesto por  "#{}". En este ejemplo accedo al bean de nombre:
-     	 kenny_playing_instruments y luego, a la propiedad song, obteniendo el valor
-     	 de esta propiedad.-->
+	<!-- Ejemplo de bean donde carl es un imitador de las canciones que kenny 
+		toca. Lo interesante de este bean, es que se usa SpEL (Spring Expression 
+		Languague) el cual esta compuesto por "#{}". En este ejemplo accedo al bean 
+		de nombre: kenny_playing_instruments y luego, a la propiedad song, obteniendo 
+		el valor de esta propiedad. -->
 	<bean id="carl" class="com.springinaction.springidol.Instrumentalist">
 		<property name="song" value="#{kenny_playing_instruments.song}" />
 	</bean>
