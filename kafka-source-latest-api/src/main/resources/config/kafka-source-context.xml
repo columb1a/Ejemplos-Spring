@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:int-kafka="http://www.springframework.org/schema/integration/kafka"
+	xmlns:task="http://www.springframework.org/schema/task" xmlns:context="http://www.springframework.org/schema/context"
+
+	xsi:schemaLocation="http://www.springframework.org/schema/integration/kafka http://www.springframework.org/schema/integration/kafka/spring-integration-kafka.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+		                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+	<context:component-scan base-package="com.kafka.source.logic" />
+
+	<int:channel id="output">
+		<int:interceptors>
+			<int:wire-tap channel="message_counter_channel" />
+		</int:interceptors>
+	</int:channel>
+	
+	<int:channel id="message_counter_channel" />
+	<int:channel id="input_to_control_bus" />
+	<int:control-bus id="my_control_bus" input-channel="input_to_control_bus" />
+
+	<int:service-activator input-channel="message_counter_channel"	method="countingAndStop" ref="messageCounter" />
+
+	<bean id="messageCounter" class="com.kafka.source.logic.MessageCounter" />
+
+	<int-kafka:message-driven-channel-adapter
+		id="kafkaInboundChannelAdapterTesting" listener-container="container1"
+		auto-startup="false" phase="100" send-timeout="5000" channel="output"
+		mode="record" message-converter="messageConverter" />
+
+	<bean id="messageConverter"
+		class="org.springframework.kafka.support.converter.MessagingMessageConverter" />
+
+	<!--Consumer -->
+	<bean id="container1"
+		class="org.springframework.kafka.listener.KafkaMessageListenerContainer">
+		<constructor-arg>
+			<bean class="org.springframework.kafka.core.DefaultKafkaConsumerFactory">
+				<constructor-arg>
+					<map>
+						<entry key="bootstrap.servers" value="localhost:9092" />
+						<entry key="enable.auto.commit" value="false" />
+						<entry key="auto.commit.interval.ms" value="100" />
+						<entry key="session.timeout.ms" value="15000" />
+						<entry key="max.poll.records" value="10" />
+						<entry key="group.id" value="bridge-stream-testing" />
+						<entry key="key.deserializer"
+							value="org.apache.kafka.common.serialization.IntegerDeserializer" />
+						<entry key="value.deserializer"
+							value="org.apache.kafka.common.serialization.StringDeserializer" />
+					</map>
+				</constructor-arg>
+			</bean>
+		</constructor-arg>
+
+		<constructor-arg>
+			<bean class="org.springframework.kafka.listener.config.ContainerProperties">
+				<constructor-arg name="topics" value="testing-topic" />
+			</bean>
+		</constructor-arg>
+	</bean>
+
+</beans>
